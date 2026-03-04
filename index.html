@@ -319,6 +319,27 @@ body.light .service-btns .btn.deepseek{background:#0066ff15;border-color:#0066ff
 
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .field,.example-pair{animation:fadeIn 0.3s ease}
+
+/* ── Preset Dropdown ── */
+.preset-wrapper{position:relative;display:inline-block}
+.preset-dropdown{
+  position:absolute;top:100%;right:0;margin-top:6px;
+  background:var(--bg2);border:1px solid var(--border2);
+  border-radius:var(--radius-sm);min-width:280px;
+  box-shadow:var(--shadow);z-index:100;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  display:none;
+}
+.preset-dropdown.open{display:block}
+.preset-item{
+  padding:10px 16px;cursor:pointer;font-size:0.85rem;
+  color:var(--text2);transition:all 0.15s;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;
+}
+.preset-item:last-child{border-bottom:none}
+.preset-item:hover{background:var(--surface2);color:var(--text)}
+.preset-item .preset-icon{flex-shrink:0}
 </style>
 </head>
 <body>
@@ -327,6 +348,10 @@ body.light .service-btns .btn.deepseek{background:#0066ff15;border-color:#0066ff
   <div class="header-top">
     <div class="logo">Prompt Builder <span>конструктор промптов</span></div>
     <div class="header-actions">
+      <div class="preset-wrapper">
+        <button class="btn btn-ghost" onclick="togglePresetMenu()" id="presetBtn">📦 Загрузить пресет</button>
+        <div class="preset-dropdown" id="presetDropdown"></div>
+      </div>
       <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Переключить тему">🌙</button>
       <button class="btn btn-ghost" onclick="resetAll()" title="Сбросить всё">↻ Сбросить</button>
     </div>
@@ -411,80 +436,130 @@ body.light .service-btns .btn.deepseek{background:#0066ff15;border-color:#0066ff
 const templates = [
   {
     id:'text', icon:'📝', name:'Текст',
+    placeholders:{
+      role:'Кто пишет текст? (например: копирайтер, редактор)',
+      task:'Какой текст нужно написать?',
+      context:'Тема, бренд, продукт',
+      audience:'Для кого текст?',
+      format:'Длина, стиль, тон',
+      constraints:'Чего избегать?'
+    },
     preset:{
-      role:'Опытный копирайтер и контент-стратег',
-      task:'Напиши пост для социальных сетей на тему [тема]. Пост должен привлечь внимание, быть информативным и побуждать к действию.',
-      context:'Бренд ориентирован на молодую аудиторию 20-35 лет. Тон коммуникации — дружелюбный, но экспертный.',
-      audience:'Подписчики бренда в Instagram/Telegram, 20-35 лет',
-      format:'Длина: 150-200 слов. Включи цепляющий заголовок, основной текст с эмодзи, призыв к действию. Стиль: разговорный, но профессиональный.',
-      constraints:'Без кликбейта. Не используй штампы типа «в современном мире». Без агрессивных продаж.'
+      role:'Опытный SMM-специалист и копирайтер',
+      task:'Напиши пост для Telegram-канала о запуске нового продукта — мобильного приложения для управления личными финансами. Пост должен привлечь внимание, вызвать интерес и побудить скачать приложение.',
+      context:'Продукт — приложение «КошелёкПро», запуск через неделю. Бесплатный тариф + премиум за 299 ₽/мес. Основные фичи: автокатегоризация расходов, умные уведомления, совместный бюджет.',
+      audience:'Подписчики Telegram-канала, 22-35 лет, интересуются финансовой грамотностью',
+      format:'150-200 слов. Цепляющий заголовок, основной текст с 2-3 эмодзи, призыв к действию со ссылкой. Тон: дружелюбный, не «продающий».',
+      constraints:'Без кликбейта и штампов. Без агрессивных продаж и фраз вроде «уникальное предложение». Не более 3 эмодзи.'
     }
   },
   {
     id:'code', icon:'💻', name:'Код',
+    placeholders:{
+      role:'Какой разработчик? (например: senior Python-разработчик)',
+      task:'Что нужно написать или исправить?',
+      context:'Стек, фреймворк, окружение',
+      audience:'Кто будет читать/использовать код?',
+      format:'Язык, стиль, структура кода',
+      constraints:'Ограничения и требования'
+    },
     preset:{
-      role:'Senior-разработчик с опытом 10+ лет, эксперт по чистому коду и лучшим практикам',
-      task:'Напиши функцию на [язык], которая [описание]. Покрой edge cases и добавь JSDoc/docstring комментарии.',
-      context:'Проект использует [фреймворк/стек]. Кодовая база следует принципам SOLID. Есть существующие утилиты для [что-то].',
-      audience:'Команда разработчиков, код будет в production',
-      format:'Код с комментариями. Сначала кратко объясни подход, потом код. В конце — пример использования.',
-      constraints:'Без лишних зависимостей. Типобезопасность. Обработка ошибок обязательна. Не более 100 строк.'
+      role:'Senior backend-разработчик, эксперт по безопасности и чистому коду',
+      task:'Проведи рефакторинг функции авторизации пользователя. Текущая реализация хранит пароли в MD5, сессии в памяти, нет rate limiting. Нужно: перейти на bcrypt, добавить JWT-токены, реализовать ограничение попыток входа.',
+      context:'Node.js + Express, PostgreSQL. Текущий код в файле auth.controller.js. Проект использует TypeScript. Есть существующий middleware для проверки ролей.',
+      audience:'Команда из 4 разработчиков, код пойдёт в production',
+      format:'TypeScript. Сначала опиши план рефакторинга, затем новый код с комментариями. В конце — пример миграции для существующих пользователей.',
+      constraints:'Без внешних auth-провайдеров (всё in-house). Обратная совместимость API. Не более 150 строк основной логики.'
     }
   },
   {
     id:'analysis', icon:'📊', name:'Анализ',
+    placeholders:{
+      role:'Кто проводит анализ? (например: бизнес-аналитик)',
+      task:'Что нужно проанализировать?',
+      context:'Данные, ситуация, рынок',
+      audience:'Кому адресован анализ?',
+      format:'Структура отчёта, объём',
+      constraints:'Ограничения, допущения'
+    },
     preset:{
-      role:'Аналитик данных и стратегический консультант',
-      task:'Проведи анализ [тема/данные]. Выяви ключевые тренды, паттерны и дай рекомендации.',
-      context:'Данные за последний квартал показывают [контекст]. Основные метрики: [метрики].',
-      audience:'Руководство компании, принимающее стратегические решения',
-      format:'Структурированный отчёт: 1) Ключевые выводы (3-5), 2) Детальный анализ, 3) Рекомендации с приоритетами, 4) Риски.',
-      constraints:'Факты, не домыслы. Если данных недостаточно — укажи это. Избегай субъективных оценок без обоснования.'
+      role:'Бизнес-аналитик с опытом внедрения CRM-систем',
+      task:'Сравни три CRM-системы: Битрикс24, AmoCRM и HubSpot. Определи лучший вариант для нашей компании по критериям: функциональность, цена, интеграции, удобство, масштабируемость.',
+      context:'Компания — digital-агентство, 25 сотрудников. Основные процессы: ведение сделок, управление проектами, коммуникация с клиентами. Сейчас всё в Google Sheets. Бюджет на CRM — до 50 000 ₽/мес.',
+      audience:'CEO и руководители отделов продаж и production',
+      format:'Сравнительная таблица по критериям, затем детальный разбор каждой системы (плюсы/минусы), итоговая рекомендация с обоснованием.',
+      constraints:'Только актуальные тарифы 2024-2025. Не учитывать бесплатные тарифы (не подходят по масштабу). Объективно, без рекламы.'
     }
   },
   {
     id:'image', icon:'🎨', name:'Изображение',
+    placeholders:{
+      role:'Эксперт по AI-генерации изображений',
+      task:'Что нужно изобразить?',
+      context:'Стиль, настроение, референсы',
+      audience:'Где будет использоваться изображение?',
+      format:'Разрешение, соотношение сторон, стиль',
+      constraints:'Чего не должно быть на изображении?'
+    },
     preset:{
-      role:'Эксперт по генерации изображений с помощью AI (DALL-E, Midjourney, Flux)',
-      task:'Создай детальный промпт для генерации изображения: [описание]. Промпт должен быть на английском.',
-      context:'Изображение нужно для [цель: сайт/соцсети/презентация]. Стиль: [реализм/иллюстрация/3D].',
-      audience:'AI-модель для генерации изображений',
-      format:'Промпт на английском. Структура: subject, setting, lighting, style, mood, camera angle, details. 1-2 абзаца.',
-      constraints:'Без текста на изображении. Не описывай действия — только визуал. Без копирайтных персонажей.'
+      role:'Эксперт по генерации изображений с помощью AI (Midjourney, DALL-E, Flux)',
+      task:'Создай детальный промпт для генерации изображения: киберпанк-город на закате. Неоновые вывески, летающие машины, дождь. Промпт на английском языке.',
+      context:'Изображение для обложки sci-fi рассказа на Литрес. Стиль — кинематографичный реализм с элементами аниме. Настроение — ностальгическая меланхолия.',
+      audience:'AI-модель для генерации изображений (Midjourney v6)',
+      format:'Один абзац на английском. Структура: subject, environment, lighting, atmosphere, style, camera angle. Добавить технические параметры (--ar 16:9 и т.д.).',
+      constraints:'Без текста и букв на изображении. Без узнаваемых брендов и копирайтных персонажей. Без людей крупным планом.'
     }
   },
   {
     id:'brainstorm', icon:'🧠', name:'Брейншторм',
+    placeholders:{
+      role:'Кто генерирует идеи? (например: креативный стратег)',
+      task:'На какую тему нужны идеи?',
+      context:'Сфера, ресурсы, текущая ситуация',
+      audience:'Кто будет оценивать идеи?',
+      format:'Количество идей, глубина проработки',
+      constraints:'Что не подходит, бюджет, сроки'
+    },
     preset:{
-      role:'Креативный стратег и фасилитатор мозговых штурмов',
-      task:'Сгенерируй 10 нестандартных идей для [тема]. Каждую идею обоснуй и оцени реализуемость.',
-      context:'Компания работает в сфере [сфера]. Бюджет ограничен. Команда из 5 человек. Дедлайн — 2 месяца.',
-      audience:'Продуктовая команда, выбирающая направление развития',
-      format:'Нумерованный список. Для каждой идеи: название (1 строка), описание (2-3 предложения), оценка сложности (1-5), потенциал (1-5).',
-      constraints:'Без банальных идей. Минимум 3 идеи должны быть «дикими». Не повторяй то, что уже есть на рынке.'
+      role:'HR-специалист и креативный организатор корпоративных мероприятий',
+      task:'Придумай 10 идей для тимбилдинга распределённой команды (часть сотрудников в офисе, часть — удалённо). Идеи должны быть необычными и реально вовлекать всех участников.',
+      context:'IT-компания, 40 человек, 60% работают удалённо из разных городов. Последний тимбилдинг был полгода назад (обычный квиз — всем надоело). Есть Zoom, Miro, Slack.',
+      audience:'HR-директор и тимлиды, которые выберут 2-3 активности на ближайший квартал',
+      format:'Нумерованный список. Каждая идея: название, описание (2-3 предложения), формат (онлайн/гибрид), бюджет (низкий/средний/высокий), время на подготовку.',
+      constraints:'Без банальных квизов и «ледоколов». Бюджет на одну активность — до 30 000 ₽. Длительность — максимум 2 часа.'
     }
   },
   {
-    id:'general', icon:'📋', name:'Разное',
+    id:'general', icon:'📋', name:'Универсальный',
+    placeholders:{
+      role:'Кто выполняет задачу? (например: опытный SMM-специалист)',
+      task:'Что нужно сделать?',
+      context:'Вводные данные, ситуация, бэкграунд',
+      audience:'Для кого результат?',
+      format:'Как оформить? (длина, структура, стиль)',
+      constraints:'Чего избегать, лимиты'
+    },
     preset:{
-      role:'Универсальный AI-ассистент с широкой экспертизой',
-      task:'[Опишите вашу задачу здесь]',
-      context:'',
-      audience:'',
-      format:'Структурированный, понятный ответ. Используй заголовки и списки где уместно.',
-      constraints:'Будь точным и конкретным. Если не уверен — скажи об этом.'
+      role:'HR-менеджер с опытом построения процессов в IT-компаниях',
+      task:'Напиши пошаговую инструкцию по онбордингу нового сотрудника. Инструкция должна покрывать первые 30 дней: от подписания оффера до завершения испытательного срока.',
+      context:'Компания — SaaS-стартап, 50 человек. Гибридный формат работы. Используем Notion, Slack, Google Workspace. Есть buddy-система, но нет формализованного чеклиста.',
+      audience:'HR-команда и тимлиды, которые будут использовать инструкцию для каждого нового сотрудника',
+      format:'Чеклист по дням/неделям: День 0 (до выхода), День 1, Неделя 1, Неделя 2-4. Для каждого пункта — ответственный и дедлайн.',
+      constraints:'Без воды и общих фраз. Конкретные действия, а не «познакомить с командой». Учитывать удалённых сотрудников.'
     }
   }
 ];
 
+const fieldIds = ['role','task','context','audience','format','constraints'];
 let cotEnabled = false;
 let exampleCount = 0;
-let currentTemplate = 'text';
+let currentTemplate = 'general';
 
 // ── Init ──
 function init() {
   renderTabs();
-  applyTemplate('text');
+  applyTemplate('general');
+  renderPresetDropdown();
 }
 
 function renderTabs() {
@@ -500,21 +575,62 @@ function applyTemplate(id) {
   currentTemplate = id;
   const t = templates.find(x => x.id === id);
   if (!t) return;
-  document.getElementById('role').value = t.preset.role;
-  document.getElementById('task').value = t.preset.task;
-  document.getElementById('context').value = t.preset.context;
-  document.getElementById('audience').value = t.preset.audience;
-  document.getElementById('format').value = t.preset.format;
-  document.getElementById('constraints').value = t.preset.constraints;
-  // Clear examples
-  document.getElementById('examplesContainer').innerHTML = '';
-  exampleCount = 0;
-  cotEnabled = false;
-  document.getElementById('cotToggle').classList.remove('on');
+  fieldIds.forEach(f => {
+    document.getElementById(f).placeholder = t.placeholders[f];
+  });
   renderTabs();
-  updateAddBtn();
+  renderPresetDropdown();
+}
+
+// ── Preset dropdown ──
+function renderPresetDropdown() {
+  const dd = document.getElementById('presetDropdown');
+  dd.innerHTML = templates.map(t =>
+    `<div class="preset-item" onclick="loadPreset('${t.id}')">
+      <span class="preset-icon">${t.icon}</span>
+      <span>${t.name}: ${getPresetDescription(t.id)}</span>
+    </div>`
+  ).join('');
+}
+
+function getPresetDescription(id) {
+  const descs = {
+    text: 'пост в Telegram о запуске продукта',
+    code: 'рефакторинг функции авторизации',
+    analysis: 'сравнение трёх CRM-систем',
+    image: 'киберпанк-город на закате',
+    brainstorm: 'идеи для тимбилдинга',
+    general: 'инструкция по онбордингу'
+  };
+  return descs[id] || '';
+}
+
+function togglePresetMenu() {
+  const dd = document.getElementById('presetDropdown');
+  dd.classList.toggle('open');
+}
+
+function loadPreset(id) {
+  const t = templates.find(x => x.id === id);
+  if (!t) return;
+  // Switch to the template tab
+  applyTemplate(id);
+  // Fill fields with preset content
+  fieldIds.forEach(f => {
+    document.getElementById(f).value = t.preset[f];
+  });
+  // Close dropdown
+  document.getElementById('presetDropdown').classList.remove('open');
   updatePreview();
 }
+
+// Close preset dropdown on outside click
+document.addEventListener('click', function(e) {
+  const wrapper = document.querySelector('.preset-wrapper');
+  if (wrapper && !wrapper.contains(e.target)) {
+    document.getElementById('presetDropdown').classList.remove('open');
+  }
+});
 
 // ── CoT ──
 function toggleCoT() {
@@ -651,7 +767,7 @@ function openIn(service) {
 
 // ── Reset ──
 function resetAll() {
-  ['role','task','context','audience','format','constraints'].forEach(id => {
+  fieldIds.forEach(id => {
     document.getElementById(id).value = '';
   });
   document.getElementById('examplesContainer').innerHTML = '';
