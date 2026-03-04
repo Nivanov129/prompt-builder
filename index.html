@@ -422,8 +422,7 @@ body.light .service-btns .btn.deepseek{background:#0066ff15;border-color:#0066ff
       <button class="btn deepseek" onclick="openIn('deepseek')">DeepSeek</button>
     </div>
     <div class="action-bar">
-      <button class="btn btn-primary" onclick="copyPrompt()">📋 Скопировать</button>
-      <button class="btn btn-secondary" onclick="copyMarkdown()">MD</button>
+      <button class="btn btn-primary" id="copyBtn" onclick="copyPrompt()">📋 Скопировать</button>
     </div>
   </div>
 </div>
@@ -687,32 +686,33 @@ function buildPrompt() {
   let parts = [];
 
   if (role) parts.push(`Ты — ${role}.`);
+  if (task) parts.push(`\n${task}`);
+  if (context) parts.push(`\nКонтекст: ${context}`);
+  if (audience) parts.push(`Аудитория: ${audience}`);
+  if (format) parts.push(`Формат: ${format}`);
+  if (constraints) parts.push(`Ограничения: ${constraints}`);
 
   if (cotEnabled) {
-    parts.push('\nПеред тем как дать финальный ответ, сначала пошагово проанализируй задачу, рассмотри разные варианты, и только потом дай итоговый ответ.');
+    parts.push('\nСначала проанализируй задачу шаг за шагом, затем дай финальный результат.');
   }
-
-  if (task) parts.push(`\n## Задача\n${task}`);
-  if (context) parts.push(`\n## Контекст\n${context}`);
-  if (audience) parts.push(`\n## Аудитория\n${audience}`);
-  if (format) parts.push(`\n## Формат ответа\n${format}`);
-  if (constraints) parts.push(`\n## Ограничения\n${constraints}`);
 
   // Examples
   const exPairs = document.querySelectorAll('.example-pair');
   if (exPairs.length > 0) {
-    let exText = '\n## Примеры';
+    let exText = '\nПримеры:';
+    let hasContent = false;
     exPairs.forEach((pair, i) => {
       const textareas = pair.querySelectorAll('textarea');
       const inp = textareas[0]?.value.trim();
       const out = textareas[1]?.value.trim();
       if (inp || out) {
-        exText += `\n\n### Пример ${i + 1}`;
-        if (inp) exText += `\n**Вход:** ${inp}`;
-        if (out) exText += `\n**Выход:** ${out}`;
+        hasContent = true;
+        if (inp) exText += `\nВход: ${inp}`;
+        if (out) exText += `\nВыход: ${out}`;
+        if (i < exPairs.length - 1) exText += '';
       }
     });
-    if (exText !== '\n## Примеры') parts.push(exText);
+    if (hasContent) parts.push(exText);
   }
 
   return parts.join('\n');
@@ -740,13 +740,12 @@ function updatePreview() {
 function copyPrompt() {
   const prompt = buildPrompt();
   if (!prompt) return showToast('Промпт пуст — заполните поля');
-  navigator.clipboard.writeText(prompt).then(() => showToast('Промпт скопирован ✓'));
-}
-
-function copyMarkdown() {
-  const prompt = buildPrompt();
-  if (!prompt) return showToast('Промпт пуст');
-  navigator.clipboard.writeText(prompt).then(() => showToast('Markdown скопирован ✓'));
+  const btn = document.getElementById('copyBtn');
+  navigator.clipboard.writeText(prompt).then(() => {
+    const original = btn.textContent;
+    btn.textContent = '✓ Скопировано';
+    setTimeout(() => { btn.textContent = original; }, 2000);
+  });
 }
 
 // ── Open In ──
