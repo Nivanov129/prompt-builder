@@ -7,8 +7,8 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0a0a0f;
-  --bg2:#12121a;
+  --bg:#0f0f23;
+  --bg2:#161630;
   --surface:rgba(255,255,255,0.04);
   --surface2:rgba(255,255,255,0.07);
   --surface3:rgba(255,255,255,0.1);
@@ -17,9 +17,9 @@
   --text:#e4e4e7;
   --text2:#a1a1aa;
   --text3:#71717a;
-  --accent:#7c5cfc;
-  --accent2:#9b7dff;
-  --accent-glow:rgba(124,92,252,0.15);
+  --accent:#6366f1;
+  --accent2:#818cf8;
+  --accent-glow:rgba(99,102,241,0.15);
   --green:#22c55e;
   --red:#ef4444;
   --radius:12px;
@@ -72,7 +72,7 @@ body{
 .tab:hover{background:var(--surface2);color:var(--text);border-color:var(--border2)}
 .tab.active{
   background:var(--accent-glow);color:var(--accent2);
-  border-color:rgba(124,92,252,0.3);
+  border-color:rgba(99,102,241,0.3);
 }
 .tab .tab-icon{margin-right:6px}
 
@@ -110,8 +110,8 @@ textarea,input[type="text"]{
   transition:border-color 0.2s,box-shadow 0.2s;line-height:1.5;
 }
 textarea:focus,input[type="text"]:focus{
-  outline:none;border-color:rgba(124,92,252,0.4);
-  box-shadow:0 0 0 3px rgba(124,92,252,0.1);
+  outline:none;border-color:rgba(99,102,241,0.4);
+  box-shadow:0 0 0 3px rgba(99,102,241,0.1);
 }
 textarea{min-height:80px}
 textarea.task-input{min-height:120px}
@@ -228,8 +228,8 @@ textarea.task-input{min-height:120px}
 }
 .service-btns .btn.chatgpt{background:#10a37f22;color:#10a37f;border:1px solid #10a37f33}
 .service-btns .btn.chatgpt:hover{background:#10a37f33}
-.service-btns .btn.claude-btn{background:rgba(124,92,252,0.12);color:var(--accent2);border:1px solid rgba(124,92,252,0.25)}
-.service-btns .btn.claude-btn:hover{background:rgba(124,92,252,0.2)}
+.service-btns .btn.claude-btn{background:rgba(99,102,241,0.12);color:var(--accent2);border:1px solid rgba(99,102,241,0.25)}
+.service-btns .btn.claude-btn:hover{background:rgba(99,102,241,0.2)}
 .service-btns .btn.gemini{background:#4285f422;color:#4285f4;border:1px solid #4285f433}
 .service-btns .btn.gemini:hover{background:#4285f433}
 .service-btns .btn.deepseek{background:#0066ff22;color:#4d94ff;border:1px solid #0066ff33}
@@ -253,7 +253,7 @@ textarea.task-input{min-height:120px}
   padding:14px 20px;border-radius:var(--radius);
   background:var(--accent);color:#fff;border:none;
   font-size:0.85rem;font-weight:600;cursor:pointer;
-  box-shadow:0 4px 20px rgba(124,92,252,0.4);
+  box-shadow:0 4px 20px rgba(99,102,241,0.4);
 }
 
 /* ── Responsive ── */
@@ -301,27 +301,27 @@ textarea.task-input{min-height:120px}
   <div class="panel form-panel" id="formPanel">
     <div class="field">
       <label class="field-label">🎭 Роль <span class="req">*</span></label>
-      <input type="text" id="role" placeholder="Например: опытный копирайтер с 10-летним стажем" oninput="updatePreview()">
+      <textarea id="role" placeholder="Кто выполняет задачу? (например: опытный SMM-специалист)" oninput="updatePreview()" style="min-height:60px"></textarea>
     </div>
     <div class="field">
       <label class="field-label">🎯 Задача <span class="req">*</span></label>
-      <textarea id="task" class="task-input" placeholder="Опишите, что нужно сделать..." oninput="updatePreview()"></textarea>
+      <textarea id="task" class="task-input" placeholder="Что нужно сделать?" oninput="updatePreview()"></textarea>
     </div>
     <div class="field">
       <label class="field-label">📎 Контекст</label>
-      <textarea id="context" placeholder="Вводные данные, ситуация, предыстория..." oninput="updatePreview()"></textarea>
+      <textarea id="context" placeholder="Вводные данные, ситуация, бэкграунд" oninput="updatePreview()"></textarea>
     </div>
     <div class="field">
       <label class="field-label">👥 Аудитория</label>
-      <input type="text" id="audience" placeholder="Для кого предназначен результат?" oninput="updatePreview()">
+      <textarea id="audience" placeholder="Для кого результат?" oninput="updatePreview()" style="min-height:60px"></textarea>
     </div>
     <div class="field">
       <label class="field-label">📐 Формат</label>
-      <textarea id="format" placeholder="Длина, стиль, структура ответа..." oninput="updatePreview()" style="min-height:60px"></textarea>
+      <textarea id="format" placeholder="Как оформить? (длина, структура, стиль)" oninput="updatePreview()" style="min-height:60px"></textarea>
     </div>
     <div class="field">
       <label class="field-label">🚫 Ограничения</label>
-      <textarea id="constraints" placeholder="Чего избегать, лимиты, запреты..." oninput="updatePreview()" style="min-height:60px"></textarea>
+      <textarea id="constraints" placeholder="Чего избегать, лимиты" oninput="updatePreview()" style="min-height:60px"></textarea>
     </div>
 
     <!-- Chain of Thought -->
@@ -339,7 +339,7 @@ textarea.task-input{min-height:120px}
     <div class="examples-section">
       <label class="field-label">💡 Примеры (Few-shot)</label>
       <div id="examplesContainer"></div>
-      <button class="add-btn" onclick="addExample()">+ Добавить пример</button>
+      <button class="add-btn" id="addExampleBtn" onclick="addExample()">+ Добавить пример</button>
     </div>
   </div>
 
@@ -474,6 +474,7 @@ function applyTemplate(id) {
   cotEnabled = false;
   document.getElementById('cotToggle').classList.remove('on');
   renderTabs();
+  updateAddBtn();
   updatePreview();
 }
 
@@ -486,6 +487,8 @@ function toggleCoT() {
 
 // ── Few-shot ──
 function addExample() {
+  const current = document.querySelectorAll('.example-pair').length;
+  if (current >= 3) return;
   exampleCount++;
   const id = exampleCount;
   const div = document.createElement('div');
@@ -493,18 +496,26 @@ function addExample() {
   div.id = `ex-${id}`;
   div.innerHTML = `
     <button class="remove-example" onclick="removeExample(${id})" title="Удалить">×</button>
-    <div class="ex-label">Вход (пример ${id})</div>
+    <div class="ex-label">Вход (пример ${current + 1})</div>
     <textarea placeholder="Пример входных данных..." oninput="updatePreview()"></textarea>
-    <div class="ex-label" style="margin-top:8px">Выход (пример ${id})</div>
+    <div class="ex-label" style="margin-top:8px">Выход (пример ${current + 1})</div>
     <textarea placeholder="Ожидаемый результат..." oninput="updatePreview()"></textarea>
   `;
   document.getElementById('examplesContainer').appendChild(div);
+  updateAddBtn();
   updatePreview();
+}
+
+function updateAddBtn() {
+  const btn = document.getElementById('addExampleBtn');
+  const current = document.querySelectorAll('.example-pair').length;
+  btn.style.display = current >= 3 ? 'none' : 'flex';
 }
 
 function removeExample(id) {
   const el = document.getElementById(`ex-${id}`);
   if (el) el.remove();
+  updateAddBtn();
   updatePreview();
 }
 
@@ -609,6 +620,7 @@ function resetAll() {
   exampleCount = 0;
   cotEnabled = false;
   document.getElementById('cotToggle').classList.remove('on');
+  updateAddBtn();
   updatePreview();
   showToast('Форма очищена');
 }
