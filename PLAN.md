@@ -102,7 +102,7 @@
 - [x] Remove MD copy button (not in spec)
 
 ### Task 5: Polish and final validation
-- [ ] Ensure mobile responsiveness works correctly with all new features
-- [ ] Verify all 6 templates have correct placeholders and presets
-- [ ] Test theme toggle persistence and visual correctness
-- [ ] Final review of all spec requirements
+- [x] Ensure mobile responsiveness works correctly with all new features
+- [x] Verify all 6 templates have correct placeholders and presets
+- [x] Test theme toggle persistence and visual correctness
+- [x] Final review of all spec requirements

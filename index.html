@@ -30,7 +30,7 @@
 }
 html{font-size:15px;scroll-behavior:smooth}
 body{
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;
   background:var(--bg);color:var(--text);min-height:100vh;
   line-height:1.6;
 }
@@ -262,6 +262,7 @@ textarea.task-input{min-height:120px}
   .header{padding:16px 16px 0}
   .main{padding:0 16px 100px}
   .form-panel{max-height:none}
+  .form-panel.mobile-hide{display:none}
   .preview-panel{
     position:relative;top:0;max-height:none;
     display:none;
@@ -391,7 +392,7 @@ body.light .service-btns .btn.deepseek{background:#0066ff15;border-color:#0066ff
     <div class="field">
       <div class="toggle-row" onclick="toggleCoT()">
         <div class="toggle-label">
-          <strong>🧠 Chain of Thought</strong>
+          <strong>🧠 Пошаговое мышление</strong>
           <small>Модель сначала анализирует, потом отвечает</small>
         </div>
         <div class="toggle-switch" id="cotToggle"></div>
@@ -780,12 +781,15 @@ function resetAll() {
 
 // ── Mobile toggle ──
 function toggleMobilePreview() {
-  const panel = document.getElementById('previewPanel');
+  const preview = document.getElementById('previewPanel');
+  const form = document.getElementById('formPanel');
   const btn = document.getElementById('mobileToggle');
-  panel.classList.toggle('mobile-show');
-  if (panel.classList.contains('mobile-show')) {
+  const showPreview = !preview.classList.contains('mobile-show');
+  preview.classList.toggle('mobile-show', showPreview);
+  form.classList.toggle('mobile-hide', showPreview);
+  if (showPreview) {
     btn.textContent = '✏️ Редактор';
-    panel.scrollIntoView({ behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   } else {
     btn.textContent = '📄 Превью';
   }
