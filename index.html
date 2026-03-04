@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Builder — Конструктор промптов</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0f;
+  --bg2:#12121a;
+  --surface:rgba(255,255,255,0.04);
+  --surface2:rgba(255,255,255,0.07);
+  --surface3:rgba(255,255,255,0.1);
+  --border:rgba(255,255,255,0.08);
+  --border2:rgba(255,255,255,0.12);
+  --text:#e4e4e7;
+  --text2:#a1a1aa;
+  --text3:#71717a;
+  --accent:#7c5cfc;
+  --accent2:#9b7dff;
+  --accent-glow:rgba(124,92,252,0.15);
+  --green:#22c55e;
+  --red:#ef4444;
+  --radius:12px;
+  --radius-sm:8px;
+  --glass:rgba(255,255,255,0.03);
+  --glass-border:rgba(255,255,255,0.06);
+  --shadow:0 8px 32px rgba(0,0,0,0.4);
+}
+html{font-size:15px;scroll-behavior:smooth}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;
+  background:var(--bg);color:var(--text);min-height:100vh;
+  line-height:1.6;
+}
+::selection{background:var(--accent);color:#fff}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px}
+
+/* ── Header ── */
+.header{
+  padding:20px 24px 0;max-width:1440px;margin:0 auto;
+}
+.header-top{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:20px;flex-wrap:wrap;gap:12px;
+}
+.logo{
+  font-size:1.4rem;font-weight:700;letter-spacing:-0.5px;
+  background:linear-gradient(135deg,var(--accent2),var(--accent));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.logo span{font-weight:400;opacity:0.7;-webkit-text-fill-color:var(--text3);font-size:0.85rem;margin-left:8px}
+.header-actions{display:flex;gap:8px;align-items:center}
+
+/* ── Tabs ── */
+.tabs{
+  display:flex;gap:6px;overflow-x:auto;padding-bottom:16px;
+  scrollbar-width:none;-ms-overflow-style:none;
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  flex-shrink:0;padding:10px 18px;border-radius:var(--radius-sm);
+  border:1px solid var(--border);background:var(--surface);
+  color:var(--text2);cursor:pointer;font-size:0.88rem;
+  transition:all 0.2s;white-space:nowrap;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+}
+.tab:hover{background:var(--surface2);color:var(--text);border-color:var(--border2)}
+.tab.active{
+  background:var(--accent-glow);color:var(--accent2);
+  border-color:rgba(124,92,252,0.3);
+}
+.tab .tab-icon{margin-right:6px}
+
+/* ── Main Layout ── */
+.main{
+  display:grid;grid-template-columns:1fr 1fr;gap:24px;
+  max-width:1440px;margin:0 auto;padding:0 24px 40px;
+  min-height:calc(100vh - 130px);
+}
+
+/* ── Glass Card ── */
+.panel{
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  box-shadow:var(--shadow);
+}
+
+/* ── Form Panel ── */
+.form-panel{
+  padding:24px;overflow-y:auto;max-height:calc(100vh - 150px);
+}
+.field{margin-bottom:20px}
+.field-label{
+  display:flex;align-items:center;gap:6px;
+  font-size:0.8rem;font-weight:600;color:var(--text2);
+  text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;
+}
+.field-label .req{color:var(--accent);font-size:0.7rem}
+textarea,input[type="text"]{
+  width:100%;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:12px 14px;color:var(--text);
+  font-size:0.93rem;font-family:inherit;resize:vertical;
+  transition:border-color 0.2s,box-shadow 0.2s;line-height:1.5;
+}
+textarea:focus,input[type="text"]:focus{
+  outline:none;border-color:rgba(124,92,252,0.4);
+  box-shadow:0 0 0 3px rgba(124,92,252,0.1);
+}
+textarea{min-height:80px}
+textarea.task-input{min-height:120px}
+.field-hint{font-size:0.75rem;color:var(--text3);margin-top:4px}
+
+/* ── Toggle ── */
+.toggle-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--radius-sm);
+  cursor:pointer;transition:background 0.2s;
+}
+.toggle-row:hover{background:var(--surface2)}
+.toggle-label{display:flex;flex-direction:column;gap:2px}
+.toggle-label strong{font-size:0.9rem;font-weight:600}
+.toggle-label small{font-size:0.75rem;color:var(--text3)}
+.toggle-switch{
+  width:44px;height:24px;background:var(--surface3);
+  border-radius:12px;position:relative;transition:background 0.2s;
+  flex-shrink:0;
+}
+.toggle-switch::after{
+  content:'';position:absolute;top:3px;left:3px;
+  width:18px;height:18px;background:#fff;border-radius:50%;
+  transition:transform 0.2s;
+}
+.toggle-switch.on{background:var(--accent)}
+.toggle-switch.on::after{transform:translateX(20px)}
+
+/* ── Few-shot ── */
+.examples-section{margin-bottom:20px}
+.example-pair{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:14px;margin-bottom:10px;
+  position:relative;
+}
+.example-pair textarea{
+  background:var(--bg2);border-color:var(--border);min-height:50px;
+  margin-bottom:8px;font-size:0.85rem;
+}
+.example-pair textarea:last-of-type{margin-bottom:0}
+.example-pair .ex-label{
+  font-size:0.7rem;color:var(--text3);text-transform:uppercase;
+  letter-spacing:0.5px;margin-bottom:4px;font-weight:600;
+}
+.remove-example{
+  position:absolute;top:8px;right:8px;background:none;
+  border:none;color:var(--text3);cursor:pointer;font-size:1.1rem;
+  padding:4px;line-height:1;transition:color 0.2s;
+}
+.remove-example:hover{color:var(--red)}
+.add-btn{
+  display:flex;align-items:center;gap:6px;padding:10px 16px;
+  background:var(--surface);border:1px dashed var(--border2);
+  border-radius:var(--radius-sm);color:var(--text2);
+  cursor:pointer;font-size:0.85rem;transition:all 0.2s;width:100%;
+  justify-content:center;
+}
+.add-btn:hover{background:var(--surface2);color:var(--text);border-color:var(--accent)}
+
+/* ── Preview Panel ── */
+.preview-panel{
+  position:sticky;top:20px;padding:0;display:flex;flex-direction:column;
+  max-height:calc(100vh - 150px);
+}
+.preview-header{
+  padding:16px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+}
+.preview-header h3{font-size:0.95rem;font-weight:600}
+.preview-content{
+  padding:20px;flex:1;overflow-y:auto;
+  font-size:0.9rem;line-height:1.7;white-space:pre-wrap;
+  color:var(--text);word-break:break-word;
+}
+.preview-empty{color:var(--text3);font-style:italic;text-align:center;padding-top:60px}
+.char-count{font-size:0.75rem;color:var(--text3)}
+
+/* ── Buttons ── */
+.btn{
+  padding:10px 18px;border-radius:var(--radius-sm);border:none;
+  font-size:0.85rem;font-weight:600;cursor:pointer;
+  transition:all 0.2s;display:inline-flex;align-items:center;gap:6px;
+  font-family:inherit;
+}
+.btn-primary{
+  background:var(--accent);color:#fff;
+}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn-secondary{
+  background:var(--surface2);color:var(--text);border:1px solid var(--border);
+}
+.btn-secondary:hover{background:var(--surface3)}
+.btn-ghost{
+  background:transparent;color:var(--text2);padding:8px 12px;
+}
+.btn-ghost:hover{color:var(--text);background:var(--surface)}
+.btn-icon{padding:8px;font-size:1rem}
+
+/* ── Action Bar ── */
+.action-bar{
+  padding:16px 20px;border-top:1px solid var(--border);
+  display:flex;flex-wrap:wrap;gap:8px;flex-shrink:0;
+}
+.action-bar .btn{flex:1;min-width:0;justify-content:center;font-size:0.8rem;padding:9px 10px}
+
+.service-btns{
+  display:flex;gap:6px;flex-wrap:wrap;padding:0 20px 16px;
+}
+.service-btns .btn{
+  flex:1;min-width:0;justify-content:center;font-size:0.75rem;
+  padding:8px 6px;
+}
+.service-btns .btn.chatgpt{background:#10a37f22;color:#10a37f;border:1px solid #10a37f33}
+.service-btns .btn.chatgpt:hover{background:#10a37f33}
+.service-btns .btn.claude-btn{background:rgba(124,92,252,0.12);color:var(--accent2);border:1px solid rgba(124,92,252,0.25)}
+.service-btns .btn.claude-btn:hover{background:rgba(124,92,252,0.2)}
+.service-btns .btn.gemini{background:#4285f422;color:#4285f4;border:1px solid #4285f433}
+.service-btns .btn.gemini:hover{background:#4285f433}
+.service-btns .btn.deepseek{background:#0066ff22;color:#4d94ff;border:1px solid #0066ff33}
+.service-btns .btn.deepseek:hover{background:#0066ff33}
+
+/* ── Toast ── */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--surface2);border:1px solid var(--border2);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  padding:12px 24px;border-radius:var(--radius);
+  font-size:0.88rem;color:var(--text);
+  box-shadow:var(--shadow);transition:transform 0.3s ease;
+  z-index:999;
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* ── Mobile toggle ── */
+.mobile-toggle{
+  display:none;position:fixed;bottom:20px;right:20px;z-index:50;
+  padding:14px 20px;border-radius:var(--radius);
+  background:var(--accent);color:#fff;border:none;
+  font-size:0.85rem;font-weight:600;cursor:pointer;
+  box-shadow:0 4px 20px rgba(124,92,252,0.4);
+}
+
+/* ── Responsive ── */
+@media(max-width:900px){
+  .main{grid-template-columns:1fr;gap:16px}
+  .header{padding:16px 16px 0}
+  .main{padding:0 16px 100px}
+  .form-panel{max-height:none}
+  .preview-panel{
+    position:relative;top:0;max-height:none;
+    display:none;
+  }
+  .preview-panel.mobile-show{display:flex}
+  .mobile-toggle{display:block}
+  .tab{padding:8px 14px;font-size:0.82rem}
+}
+@media(max-width:480px){
+  html{font-size:14px}
+  .header-top{flex-direction:column;align-items:flex-start}
+  .action-bar{flex-direction:column}
+  .action-bar .btn{flex:none}
+  .service-btns{flex-direction:column}
+  .service-btns .btn{flex:none}
+}
+
+/* ── Animations ── */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.field,.example-pair{animation:fadeIn 0.3s ease}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="logo">Prompt Builder <span>конструктор промптов</span></div>
+    <div class="header-actions">
+      <button class="btn btn-ghost" onclick="resetAll()" title="Сбросить всё">↻ Сбросить</button>
+    </div>
+  </div>
+  <div class="tabs" id="tabs"></div>
+</div>
+
+<div class="main">
+  <!-- Form -->
+  <div class="panel form-panel" id="formPanel">
+    <div class="field">
+      <label class="field-label">🎭 Роль <span class="req">*</span></label>
+      <input type="text" id="role" placeholder="Например: опытный копирайтер с 10-летним стажем" oninput="updatePreview()">
+    </div>
+    <div class="field">
+      <label class="field-label">🎯 Задача <span class="req">*</span></label>
+      <textarea id="task" class="task-input" placeholder="Опишите, что нужно сделать..." oninput="updatePreview()"></textarea>
+    </div>
+    <div class="field">
+      <label class="field-label">📎 Контекст</label>
+      <textarea id="context" placeholder="Вводные данные, ситуация, предыстория..." oninput="updatePreview()"></textarea>
+    </div>
+    <div class="field">
+      <label class="field-label">👥 Аудитория</label>
+      <input type="text" id="audience" placeholder="Для кого предназначен результат?" oninput="updatePreview()">
+    </div>
+    <div class="field">
+      <label class="field-label">📐 Формат</label>
+      <textarea id="format" placeholder="Длина, стиль, структура ответа..." oninput="updatePreview()" style="min-height:60px"></textarea>
+    </div>
+    <div class="field">
+      <label class="field-label">🚫 Ограничения</label>
+      <textarea id="constraints" placeholder="Чего избегать, лимиты, запреты..." oninput="updatePreview()" style="min-height:60px"></textarea>
+    </div>
+
+    <!-- Chain of Thought -->
+    <div class="field">
+      <div class="toggle-row" onclick="toggleCoT()">
+        <div class="toggle-label">
+          <strong>🧠 Chain of Thought</strong>
+          <small>Модель сначала анализирует, потом отвечает</small>
+        </div>
+        <div class="toggle-switch" id="cotToggle"></div>
+      </div>
+    </div>
+
+    <!-- Few-shot -->
+    <div class="examples-section">
+      <label class="field-label">💡 Примеры (Few-shot)</label>
+      <div id="examplesContainer"></div>
+      <button class="add-btn" onclick="addExample()">+ Добавить пример</button>
+    </div>
+  </div>
+
+  <!-- Preview -->
+  <div class="panel preview-panel" id="previewPanel">
+    <div class="preview-header">
+      <h3>📄 Готовый промпт</h3>
+      <span class="char-count" id="charCount">0 символов</span>
+    </div>
+    <div class="preview-content" id="previewContent">
+      <div class="preview-empty">Заполните поля слева,<br>и промпт появится здесь</div>
+    </div>
+    <div class="service-btns">
+      <button class="btn chatgpt" onclick="openIn('chatgpt')">ChatGPT</button>
+      <button class="btn claude-btn" onclick="openIn('claude')">Claude</button>
+      <button class="btn gemini" onclick="openIn('gemini')">Gemini</button>
+      <button class="btn deepseek" onclick="openIn('deepseek')">DeepSeek</button>
+    </div>
+    <div class="action-bar">
+      <button class="btn btn-primary" onclick="copyPrompt()">📋 Скопировать</button>
+      <button class="btn btn-secondary" onclick="copyMarkdown()">MD</button>
+    </div>
+  </div>
+</div>
+
+<button class="mobile-toggle" id="mobileToggle" onclick="toggleMobilePreview()">📄 Превью</button>
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Templates ──
+const templates = [
+  {
+    id:'text', icon:'📝', name:'Текст',
+    preset:{
+      role:'Опытный копирайтер и контент-стратег',
+      task:'Напиши пост для социальных сетей на тему [тема]. Пост должен привлечь внимание, быть информативным и побуждать к действию.',
+      context:'Бренд ориентирован на молодую аудиторию 20-35 лет. Тон коммуникации — дружелюбный, но экспертный.',
+      audience:'Подписчики бренда в Instagram/Telegram, 20-35 лет',
+      format:'Длина: 150-200 слов. Включи цепляющий заголовок, основной текст с эмодзи, призыв к действию. Стиль: разговорный, но профессиональный.',
+      constraints:'Без кликбейта. Не используй штампы типа «в современном мире». Без агрессивных продаж.'
+    }
+  },
+  {
+    id:'code', icon:'💻', name:'Код',
+    preset:{
+      role:'Senior-разработчик с опытом 10+ лет, эксперт по чистому коду и лучшим практикам',
+      task:'Напиши функцию на [язык], которая [описание]. Покрой edge cases и добавь JSDoc/docstring комментарии.',
+      context:'Проект использует [фреймворк/стек]. Кодовая база следует принципам SOLID. Есть существующие утилиты для [что-то].',
+      audience:'Команда разработчиков, код будет в production',
+      format:'Код с комментариями. Сначала кратко объясни подход, потом код. В конце — пример использования.',
+      constraints:'Без лишних зависимостей. Типобезопасность. Обработка ошибок обязательна. Не более 100 строк.'
+    }
+  },
+  {
+    id:'analysis', icon:'📊', name:'Анализ',
+    preset:{
+      role:'Аналитик данных и стратегический консультант',
+      task:'Проведи анализ [тема/данные]. Выяви ключевые тренды, паттерны и дай рекомендации.',
+      context:'Данные за последний квартал показывают [контекст]. Основные метрики: [метрики].',
+      audience:'Руководство компании, принимающее стратегические решения',
+      format:'Структурированный отчёт: 1) Ключевые выводы (3-5), 2) Детальный анализ, 3) Рекомендации с приоритетами, 4) Риски.',
+      constraints:'Факты, не домыслы. Если данных недостаточно — укажи это. Избегай субъективных оценок без обоснования.'
+    }
+  },
+  {
+    id:'image', icon:'🎨', name:'Изображение',
+    preset:{
+      role:'Эксперт по генерации изображений с помощью AI (DALL-E, Midjourney, Flux)',
+      task:'Создай детальный промпт для генерации изображения: [описание]. Промпт должен быть на английском.',
+      context:'Изображение нужно для [цель: сайт/соцсети/презентация]. Стиль: [реализм/иллюстрация/3D].',
+      audience:'AI-модель для генерации изображений',
+      format:'Промпт на английском. Структура: subject, setting, lighting, style, mood, camera angle, details. 1-2 абзаца.',
+      constraints:'Без текста на изображении. Не описывай действия — только визуал. Без копирайтных персонажей.'
+    }
+  },
+  {
+    id:'brainstorm', icon:'🧠', name:'Брейншторм',
+    preset:{
+      role:'Креативный стратег и фасилитатор мозговых штурмов',
+      task:'Сгенерируй 10 нестандартных идей для [тема]. Каждую идею обоснуй и оцени реализуемость.',
+      context:'Компания работает в сфере [сфера]. Бюджет ограничен. Команда из 5 человек. Дедлайн — 2 месяца.',
+      audience:'Продуктовая команда, выбирающая направление развития',
+      format:'Нумерованный список. Для каждой идеи: название (1 строка), описание (2-3 предложения), оценка сложности (1-5), потенциал (1-5).',
+      constraints:'Без банальных идей. Минимум 3 идеи должны быть «дикими». Не повторяй то, что уже есть на рынке.'
+    }
+  },
+  {
+    id:'general', icon:'📋', name:'Разное',
+    preset:{
+      role:'Универсальный AI-ассистент с широкой экспертизой',
+      task:'[Опишите вашу задачу здесь]',
+      context:'',
+      audience:'',
+      format:'Структурированный, понятный ответ. Используй заголовки и списки где уместно.',
+      constraints:'Будь точным и конкретным. Если не уверен — скажи об этом.'
+    }
+  }
+];
+
+let cotEnabled = false;
+let exampleCount = 0;
+let currentTemplate = 'text';
+
+// ── Init ──
+function init() {
+  renderTabs();
+  applyTemplate('text');
+}
+
+function renderTabs() {
+  const container = document.getElementById('tabs');
+  container.innerHTML = templates.map(t =>
+    `<button class="tab${t.id === currentTemplate ? ' active' : ''}" onclick="applyTemplate('${t.id}')">
+      <span class="tab-icon">${t.icon}</span>${t.name}
+    </button>`
+  ).join('');
+}
+
+function applyTemplate(id) {
+  currentTemplate = id;
+  const t = templates.find(x => x.id === id);
+  if (!t) return;
+  document.getElementById('role').value = t.preset.role;
+  document.getElementById('task').value = t.preset.task;
+  document.getElementById('context').value = t.preset.context;
+  document.getElementById('audience').value = t.preset.audience;
+  document.getElementById('format').value = t.preset.format;
+  document.getElementById('constraints').value = t.preset.constraints;
+  // Clear examples
+  document.getElementById('examplesContainer').innerHTML = '';
+  exampleCount = 0;
+  cotEnabled = false;
+  document.getElementById('cotToggle').classList.remove('on');
+  renderTabs();
+  updatePreview();
+}
+
+// ── CoT ──
+function toggleCoT() {
+  cotEnabled = !cotEnabled;
+  document.getElementById('cotToggle').classList.toggle('on', cotEnabled);
+  updatePreview();
+}
+
+// ── Few-shot ──
+function addExample() {
+  exampleCount++;
+  const id = exampleCount;
+  const div = document.createElement('div');
+  div.className = 'example-pair';
+  div.id = `ex-${id}`;
+  div.innerHTML = `
+    <button class="remove-example" onclick="removeExample(${id})" title="Удалить">×</button>
+    <div class="ex-label">Вход (пример ${id})</div>
+    <textarea placeholder="Пример входных данных..." oninput="updatePreview()"></textarea>
+    <div class="ex-label" style="margin-top:8px">Выход (пример ${id})</div>
+    <textarea placeholder="Ожидаемый результат..." oninput="updatePreview()"></textarea>
+  `;
+  document.getElementById('examplesContainer').appendChild(div);
+  updatePreview();
+}
+
+function removeExample(id) {
+  const el = document.getElementById(`ex-${id}`);
+  if (el) el.remove();
+  updatePreview();
+}
+
+// ── Build Prompt ──
+function buildPrompt() {
+  const role = document.getElementById('role').value.trim();
+  const task = document.getElementById('task').value.trim();
+  const context = document.getElementById('context').value.trim();
+  const audience = document.getElementById('audience').value.trim();
+  const format = document.getElementById('format').value.trim();
+  const constraints = document.getElementById('constraints').value.trim();
+
+  if (!role && !task) return '';
+
+  let parts = [];
+
+  if (role) parts.push(`Ты — ${role}.`);
+
+  if (cotEnabled) {
+    parts.push('\nПеред тем как дать финальный ответ, сначала пошагово проанализируй задачу, рассмотри разные варианты, и только потом дай итоговый ответ.');
+  }
+
+  if (task) parts.push(`\n## Задача\n${task}`);
+  if (context) parts.push(`\n## Контекст\n${context}`);
+  if (audience) parts.push(`\n## Аудитория\n${audience}`);
+  if (format) parts.push(`\n## Формат ответа\n${format}`);
+  if (constraints) parts.push(`\n## Ограничения\n${constraints}`);
+
+  // Examples
+  const exPairs = document.querySelectorAll('.example-pair');
+  if (exPairs.length > 0) {
+    let exText = '\n## Примеры';
+    exPairs.forEach((pair, i) => {
+      const textareas = pair.querySelectorAll('textarea');
+      const inp = textareas[0]?.value.trim();
+      const out = textareas[1]?.value.trim();
+      if (inp || out) {
+        exText += `\n\n### Пример ${i + 1}`;
+        if (inp) exText += `\n**Вход:** ${inp}`;
+        if (out) exText += `\n**Выход:** ${out}`;
+      }
+    });
+    if (exText !== '\n## Примеры') parts.push(exText);
+  }
+
+  return parts.join('\n');
+}
+
+// ── Preview ──
+function updatePreview() {
+  const prompt = buildPrompt();
+  const container = document.getElementById('previewContent');
+  const counter = document.getElementById('charCount');
+
+  if (!prompt) {
+    container.innerHTML = '<div class="preview-empty">Заполните поля слева,<br>и промпт появится здесь</div>';
+    counter.textContent = '0 символов';
+    return;
+  }
+
+  container.textContent = prompt;
+  const len = prompt.length;
+  const words = prompt.split(/\s+/).filter(Boolean).length;
+  counter.textContent = `${len} симв. · ${words} слов`;
+}
+
+// ── Copy ──
+function copyPrompt() {
+  const prompt = buildPrompt();
+  if (!prompt) return showToast('Промпт пуст — заполните поля');
+  navigator.clipboard.writeText(prompt).then(() => showToast('Промпт скопирован ✓'));
+}
+
+function copyMarkdown() {
+  const prompt = buildPrompt();
+  if (!prompt) return showToast('Промпт пуст');
+  navigator.clipboard.writeText(prompt).then(() => showToast('Markdown скопирован ✓'));
+}
+
+// ── Open In ──
+function openIn(service) {
+  const prompt = buildPrompt();
+  if (!prompt) return showToast('Сначала создайте промпт');
+  navigator.clipboard.writeText(prompt).then(() => {
+    showToast('Промпт скопирован — вставьте в чат');
+    const urls = {
+      chatgpt: 'https://chat.openai.com/',
+      claude: 'https://claude.ai/new',
+      gemini: 'https://gemini.google.com/',
+      deepseek: 'https://chat.deepseek.com/'
+    };
+    setTimeout(() => window.open(urls[service], '_blank'), 300);
+  });
+}
+
+// ── Reset ──
+function resetAll() {
+  ['role','task','context','audience','format','constraints'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('examplesContainer').innerHTML = '';
+  exampleCount = 0;
+  cotEnabled = false;
+  document.getElementById('cotToggle').classList.remove('on');
+  updatePreview();
+  showToast('Форма очищена');
+}
+
+// ── Mobile toggle ──
+function toggleMobilePreview() {
+  const panel = document.getElementById('previewPanel');
+  const btn = document.getElementById('mobileToggle');
+  panel.classList.toggle('mobile-show');
+  if (panel.classList.contains('mobile-show')) {
+    btn.textContent = '✏️ Редактор';
+    panel.scrollIntoView({ behavior: 'smooth' });
+  } else {
+    btn.textContent = '📄 Превью';
+  }
+}
+
+// ── Toast ──
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+// Start
+init();
+</script>
+</body>
+</html>
