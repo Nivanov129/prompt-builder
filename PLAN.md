@@ -72,3 +72,37 @@
 - Шрифт: system-ui
 - Border-radius: 12px
 - Transitions: 0.2s ease
+
+---
+
+## Implementation Tasks
+
+### Task 1: Fix field types, colors, placeholders, and few-shot limit
+- [x] Change Role field from input to textarea with correct placeholder from spec
+- [x] Change Audience field from input to textarea with correct placeholder from spec
+- [x] Update all placeholder texts to match spec exactly
+- [x] Fix background color to #0f0f23 (dark) and accent to #6366f1
+- [x] Limit few-shot examples to max 3 (hide add button when 3 reached)
+
+### Task 2: Add light/dark theme toggle
+- [ ] Add CSS variables for light theme (#f5f5f5 background, adjusted surfaces/text)
+- [ ] Add theme toggle button in header
+- [ ] Implement theme switching JS logic with CSS class toggle
+
+### Task 3: Rework presets and template system
+- [ ] Make tabs only change placeholders (not fill fields)
+- [ ] Add "Загрузить пресет" button with dropdown menu
+- [ ] Create specific preset content matching spec descriptions
+- [ ] Reset button clears fields but keeps current template placeholders
+
+### Task 4: Fix prompt generation format and copy button
+- [ ] Change prompt format to flat style matching spec (no markdown headers)
+- [ ] Fix CoT text to match spec exactly
+- [ ] Change copy button to show "✓ Скопировано" text for 2 sec instead of toast
+- [ ] Remove MD copy button (not in spec)
+
+### Task 5: Polish and final validation
+- [ ] Ensure mobile responsiveness works correctly with all new features
+- [ ] Verify all 6 templates have correct placeholders and presets
+- [ ] Test theme toggle persistence and visual correctness
+- [ ] Final review of all spec requirements
